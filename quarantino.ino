@@ -1,28 +1,39 @@
 #include <SPI.h>
 
-/* DIGITS */
-const PROGMEM int ZERO[5][8] = {{0,1,1,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,1,1,0,0,0,0}};
-const PROGMEM int ONE[5][8] = {{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0}};
-const PROGMEM int TWO[5][8] = {{0,1,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,1,1,1,0,0,0,0},{0,1,0,0,0,0,0,0},{0,1,1,1,0,0,0,0}};
-const PROGMEM int THREE[5][8] = {{0,1,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,1,1,1,0,0,0,0}};
-const PROGMEM int FOUR[5][8] = {{0,1,0,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0}};
-const PROGMEM int FIVE[5][8] = {{0,1,1,1,0,0,0,0},{0,1,0,0,0,0,0,0},{0,1,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,1,1,1,0,0,0,0}};
-const PROGMEM int SIX[5][8] = {{0,1,1,1,0,0,0,0},{0,1,0,0,0,0,0,0},{0,1,1,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,1,1,0,0,0,0}};
-const PROGMEM int SEVEN[5][8] = {{0,1,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0}};
-const PROGMEM int EIGHT[5][8] = {{0,1,1,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,1,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,1,1,0,0,0,0}};
-const PROGMEM int NINE[5][8] = {{0,1,1,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0}};
+/* 
+ * DIGITS
+ */
+const int ZERO[5][8] = {{0,1,1,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,1,1,0,0,0,0}};
+const int ONE[5][8] = {{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0}};
+const int TWO[5][8] = {{0,1,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,1,1,1,0,0,0,0},{0,1,0,0,0,0,0,0},{0,1,1,1,0,0,0,0}};
+const int THREE[5][8] = {{0,1,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,1,1,1,0,0,0,0}};
+const int FOUR[5][8] = {{0,1,0,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0}};
+const int FIVE[5][8] = {{0,1,1,1,0,0,0,0},{0,1,0,0,0,0,0,0},{0,1,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,1,1,1,0,0,0,0}};
+const int SIX[5][8] = {{0,1,1,1,0,0,0,0},{0,1,0,0,0,0,0,0},{0,1,1,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,1,1,0,0,0,0}};
+const int SEVEN[5][8] = {{0,1,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0}};
+const int EIGHT[5][8] = {{0,1,1,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,1,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,1,1,0,0,0,0}};
+const int NINE[5][8] = {{0,1,1,1,0,0,0,0},{0,1,0,1,0,0,0,0},{0,1,1,1,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,1,0,0,0,0}};
 
 const int bufferRows = 8;
-const int bufferCols = 16;
+const int bufferCols = 16; // second matrix spans columns 1-8; first spans 9-16
+const int firstMatrixFirstCol = 9;
+const int secondMatrixFirstCol = 1;
 int buffer[bufferRows][bufferCols];
 
-/* MAX7219 */
+/* 
+ * MAX7219
+ * Two cascaded MAX7219's for driving two LED matrices
+ * First matrix displays ones and tens; second displays hundreds (and thousands eventually)
+ * Write to second matrix first, then to first matrix
+ */
 const long MAX_CLOCK = 10000000;
+
+// Register addresses
 const byte SCAN_REGISTER_ADDRESS = 0x0B;
 const byte DECODE_REGISTER_ADDRESS = 0x09;
 const byte SHUTDOWN_REGISTER_ADDRESS = 0x0C;
 const byte INTENSITY_REGISTER_ADDRESS = 0x0A;
-
+const byte NOOP_ADDRESS = 0x00;
 const byte COL1_ADDRESS = 0x01;
 const byte COL2_ADDRESS = 0x02;
 const byte COL3_ADDRESS = 0x03;
@@ -31,7 +42,6 @@ const byte COL5_ADDRESS = 0x05;
 const byte COL6_ADDRESS = 0x06;
 const byte COL7_ADDRESS = 0x07;
 const byte COL8_ADDRESS = 0x08;
-
 const byte* COLS[] = {&COL1_ADDRESS, &COL2_ADDRESS, &COL3_ADDRESS, &COL4_ADDRESS, &COL5_ADDRESS, &COL6_ADDRESS, &COL7_ADDRESS, &COL8_ADDRESS};
 
 const byte NO_DECODE = 0x00;
@@ -40,6 +50,7 @@ const byte SCAN_FIVE_DIGITS = 0x04;
 const byte NORMAL_MODE = 0x01;
 const byte FIFTEEN = 0x07;
 
+// Counting starts when startPin (switch) goes high (is switched on)
 const int startPin = A0;
 int startVal = 0;
 
@@ -49,20 +60,25 @@ bool clearFirst = false;
 /* Time */
 unsigned long last = 0;
 unsigned long now = 0;
+unsigned long elapsed = 0;
 unsigned long period = 60000;
 
-unsigned long days = 25;
-unsigned long hours = 2;
-unsigned long minutes = 55;
+// Initial count. Set to future date and throw start switch when ready to begin counting.
+unsigned long days = 76;
+unsigned long hours = 4;
+unsigned long minutes = 37;
 unsigned long seconds = 0;
 
-const int TENS = 0;
-const int ONES = 1;
+const int HUNDREDS = 2;
+const int TENS = 1;
+const int ONES = 0;
 
 /* MAX7219 */
 void setScanLimit(byte val) { 
   SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
   digitalWrite(SS, LOW);
+  SPI.transfer(SCAN_REGISTER_ADDRESS);
+  SPI.transfer(val);
   SPI.transfer(SCAN_REGISTER_ADDRESS);
   SPI.transfer(val);
   digitalWrite(SS, HIGH);
@@ -74,6 +90,8 @@ void setDecodeMode(byte val) {
   digitalWrite(SS, LOW);
   SPI.transfer(DECODE_REGISTER_ADDRESS);
   SPI.transfer(val);
+  SPI.transfer(DECODE_REGISTER_ADDRESS);
+  SPI.transfer(val);
   digitalWrite(SS, HIGH);
   SPI.endTransaction();
 }
@@ -81,6 +99,8 @@ void setDecodeMode(byte val) {
 void setShutdownMode(byte val) {
   SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
   digitalWrite(SS, LOW);
+  SPI.transfer(SHUTDOWN_REGISTER_ADDRESS);
+  SPI.transfer(val);
   SPI.transfer(SHUTDOWN_REGISTER_ADDRESS);
   SPI.transfer(val);
   digitalWrite(SS, HIGH);
@@ -92,15 +112,20 @@ void setIntensity(byte val) {
   digitalWrite(SS, LOW);
   SPI.transfer(INTENSITY_REGISTER_ADDRESS);
   SPI.transfer(val);
+  SPI.transfer(INTENSITY_REGISTER_ADDRESS);
+  SPI.transfer(val);
   digitalWrite(SS, HIGH);
   SPI.endTransaction();
 }
 
-/* Digits */
-// Rows and cols not zero-indexed
-void copy(int digit[][8], int row, int col) {
+/*
+ * Digits
+ * Copies a digit to buffer at specified row and col
+ * Rows and cols not zero-indexed
+ */
+void copy(const int digit[][8], int row, int col) {
   for (int r=0; r<5 & r+row <= bufferRows; r++) {
-    for (int c=0; c<4 and c+col <= bufferCols; c++) {
+    for (int c=0; c<4 and c+col <= bufferCols; c++) { // Only copy first 4 values of digit (second 4 are zero)
       buffer[row-1+r][col-1+c] = digit[r][c];
     }
   }
@@ -123,7 +148,7 @@ void setup() {
   setIntensity(FIFTEEN);
 
   clearBuffer();
-  clearFirstMatrix();
+  clearMatrices();
 
   last = millis();
 }
@@ -151,28 +176,138 @@ void printBuffer() {
 
 void clearFirstMatrix() {
   for (int r=0; r<bufferRows; r++) {
-    SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
     digitalWrite(SS, LOW);
+    SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+    
+    // No op to second matrix
+    SPI.transfer(NOOP_ADDRESS);
+    SPI.transfer(0);
+
+    // Zeroes to first matrix
     SPI.transfer(*COLS[r]);
     SPI.transfer(0);
-    digitalWrite(SS, HIGH);
+ 
     SPI.endTransaction();
+    digitalWrite(SS, HIGH);
   }
 }
 
-void scanFirstMatrix() {
+void clearSecondMatrix() {
   for (int r=0; r<bufferRows; r++) {
-    int val = 0;
+    digitalWrite(SS, LOW);
+    SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+    
+    // Zeroes to second matrix
+    SPI.transfer(*COLS[r]);
+    SPI.transfer(0);
+    
+    // No op to first matrix
+    SPI.transfer(NOOP_ADDRESS);
+    SPI.transfer(0);
+
+    SPI.endTransaction();
+    digitalWrite(SS, HIGH);
+  }
+}
+
+void clearMatrices() {
+  for (int r=0; r<bufferRows; r++) {
+    digitalWrite(SS, LOW);
+    SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+    
+    // Zeroes to second matrix
+    SPI.transfer(*COLS[r]);
+    SPI.transfer(0);
+    
+    // Zeroes to first matrix
+    SPI.transfer(*COLS[r]);
+    SPI.transfer(0);
+
+    SPI.endTransaction();
+    digitalWrite(SS, HIGH);
+  }
+}
+
+
+void scanFirstMatrix() {
+  int val, a;
+  
+  for (int r=0; r<bufferRows; r++) {
+    val = 0;
+    // Convert int array of 1's and 0's into decimal value
     for (int c=7; c>-1; c--) {
-      int a = (buffer[r][7-c]) << (7-c);
+      a = (buffer[r][firstMatrixFirstCol+7-c]) << (7-c);
       val = val + a;
     }
-    SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
     digitalWrite(SS, LOW);
+    SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+    
+    // No op to second matrix
+    SPI.transfer(NOOP_ADDRESS);
+    SPI.transfer(0x00);
+    
+    // Copy buffer value to first matrix
     SPI.transfer(*COLS[r]);
     SPI.transfer(val);
-    digitalWrite(SS, HIGH);
+    
     SPI.endTransaction();
+    digitalWrite(SS, HIGH);
+  }
+}
+
+void scanSecondMatrix() {
+  int val, a;
+  
+  for (int r=0; r<bufferRows; r++) {
+    val = 0;
+    // Convert int array of 1's and 0's into decimal value
+    for (int c=7; c>-1; c--) {
+      a = (buffer[r][secondMatrixFirstCol+7-c]) << (7-c);
+      val = val + a;
+    }
+    digitalWrite(SS, LOW);
+    SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+    
+    // Copy buffer value to second matrix
+    SPI.transfer(*COLS[r]);
+    SPI.transfer(val);
+    
+    // No op to first matrix
+    SPI.transfer(NOOP_ADDRESS);
+    SPI.transfer(0x00);
+    
+    SPI.endTransaction();
+    digitalWrite(SS, HIGH);
+  }
+}
+
+void scanMatrices() {
+  int secondVal, firstVal, a, b;
+  
+  for (int r=0; r<bufferRows; r++) {
+    secondVal = 0;
+    firstVal = 0;
+    // Convert int array of 1's and 0's into decimal value
+    for (int c=7; c>-1; c--) {
+      a = (buffer[r][secondMatrixFirstCol+7-c]) << (7-c);
+      b = (buffer[r][firstMatrixFirstCol+7-c]) << (7-c);
+      secondVal = secondVal + a;
+      firstVal = firstVal + b;
+    }
+    
+    digitalWrite(SS, LOW);
+    SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+    
+    // Copy buffer value to second matrix
+    SPI.transfer(*COLS[r]);
+    SPI.transfer(secondVal);
+    
+    // Copy buffer value to first matrix
+    SPI.transfer(*COLS[r]);
+    SPI.transfer(firstVal);
+    
+    SPI.endTransaction();
+    digitalWrite(SS, HIGH);
   }
 }
 
@@ -183,14 +318,15 @@ void loop() {
   else {
     if (clearFirst) {
       clearFirst = false;
-      clearFirstMatrix();
+      clearMatrices();
     }
     
     now = millis();
-    if (now-last > period) {
-        updateTime(now-last);
-        scanFirstMatrix();
+    elapsed = now-last;
+    if (elapsed > period) {
         last = now;
+        updateTime(elapsed);
+        scanMatrices();
     }
   }
 }
@@ -198,11 +334,12 @@ void loop() {
 void updateBuffer(int val, int position) {
   int row = 2; //all digits start at row 2
   int col = 0;
-  if (position == TENS) {
-    col = 1;
-  }
-  else {
+  if (position == HUNDREDS) {
     col = 5;
+  } else if (position == TENS) {
+    col = 9;
+  } else if (position == ONES) {
+    col = 13;
   }
   
   if (val == 1) {
@@ -253,7 +390,9 @@ void updateTime(unsigned long elapsed) {
   Serial.print(minutes);
   Serial.print(".");
   Serial.println(seconds);*/
-  
-  updateBuffer(days/10,TENS);
-  updateBuffer(days%10,ONES);
+
+  updateBuffer(days/100,HUNDREDS);
+  int hModulo = days%100;
+  updateBuffer(hModulo/10,TENS);
+  updateBuffer(hModulo%10,ONES);
 }
