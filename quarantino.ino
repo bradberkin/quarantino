@@ -33,6 +33,7 @@ const byte SCAN_REGISTER_ADDRESS = 0x0B;
 const byte DECODE_REGISTER_ADDRESS = 0x09;
 const byte SHUTDOWN_REGISTER_ADDRESS = 0x0C;
 const byte INTENSITY_REGISTER_ADDRESS = 0x0A;
+const byte DISPLAY_TEST_REGISTER_ADDRESS = 0x0F;
 const byte NOOP_ADDRESS = 0x00;
 const byte COL1_ADDRESS = 0x01;
 const byte COL2_ADDRESS = 0x02;
@@ -47,7 +48,8 @@ const byte* COLS[] = {&COL1_ADDRESS, &COL2_ADDRESS, &COL3_ADDRESS, &COL4_ADDRESS
 const byte NO_DECODE = 0x00;
 const byte SCAN_ALL_DIGITS = 0x07;
 const byte SCAN_FIVE_DIGITS = 0x04;
-const byte NORMAL_MODE = 0x01;
+const byte NORMAL_MODE = 0x01; // Used for shutdown mode
+const byte TEST_DISPLAY_MODE = 0x01; // Used for display test mode
 const byte FIFTEEN = 0x07;
 
 // Counting starts when startPin (switch) goes high (is switched on)
@@ -64,9 +66,9 @@ unsigned long elapsed = 0;
 unsigned long period = 60000;
 
 // Initial count. Set to future date and throw start switch when ready to begin counting.
-unsigned long days = 76;
-unsigned long hours = 4;
-unsigned long minutes = 37;
+unsigned long days = 75;
+unsigned long hours = 1;
+unsigned long minutes = 35;
 unsigned long seconds = 0;
 
 const int HUNDREDS = 2;
@@ -107,6 +109,17 @@ void setShutdownMode(byte val) {
   SPI.endTransaction();
 }
 
+void setDisplayTestMode(byte val) {
+  SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+  digitalWrite(SS, LOW);
+  SPI.transfer(DISPLAY_TEST_REGISTER_ADDRESS);
+  SPI.transfer(val);
+  SPI.transfer(DISPLAY_TEST_REGISTER_ADDRESS);
+  SPI.transfer(val);
+  digitalWrite(SS, HIGH);
+  SPI.endTransaction();
+}
+
 void setIntensity(byte val) {
   SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
   digitalWrite(SS, LOW);
@@ -135,9 +148,9 @@ void setup() {
   pinMode(startPin, INPUT);
   pinMode(clearPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(clearPin), clearInterrupt, LOW);
-  pinMode(MOSI, OUTPUT);
-  pinMode(SCK, OUTPUT);
-  pinMode(SS, OUTPUT);
+  pinMode(MOSI, OUTPUT); // D11 on Arduino Uno
+  pinMode(SCK, OUTPUT); // D13 on Arduino Uno
+  pinMode(SS, OUTPUT); // D10 on Arduino Uno
   
   //Serial.begin(9600);
   
@@ -176,8 +189,8 @@ void printBuffer() {
 
 void clearFirstMatrix() {
   for (int r=0; r<bufferRows; r++) {
-    digitalWrite(SS, LOW);
     SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+    digitalWrite(SS, LOW);
     
     // No op to second matrix
     SPI.transfer(NOOP_ADDRESS);
@@ -187,15 +200,15 @@ void clearFirstMatrix() {
     SPI.transfer(*COLS[r]);
     SPI.transfer(0);
  
-    SPI.endTransaction();
     digitalWrite(SS, HIGH);
+    SPI.endTransaction();
   }
 }
 
 void clearSecondMatrix() {
   for (int r=0; r<bufferRows; r++) {
-    digitalWrite(SS, LOW);
     SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+    digitalWrite(SS, LOW);
     
     // Zeroes to second matrix
     SPI.transfer(*COLS[r]);
@@ -205,15 +218,15 @@ void clearSecondMatrix() {
     SPI.transfer(NOOP_ADDRESS);
     SPI.transfer(0);
 
-    SPI.endTransaction();
     digitalWrite(SS, HIGH);
+    SPI.endTransaction();
   }
 }
 
 void clearMatrices() {
   for (int r=0; r<bufferRows; r++) {
-    digitalWrite(SS, LOW);
     SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+    digitalWrite(SS, LOW);
     
     // Zeroes to second matrix
     SPI.transfer(*COLS[r]);
@@ -223,11 +236,10 @@ void clearMatrices() {
     SPI.transfer(*COLS[r]);
     SPI.transfer(0);
 
-    SPI.endTransaction();
     digitalWrite(SS, HIGH);
+    SPI.endTransaction();
   }
 }
-
 
 void scanFirstMatrix() {
   int val, a;
@@ -236,11 +248,11 @@ void scanFirstMatrix() {
     val = 0;
     // Convert int array of 1's and 0's into decimal value
     for (int c=7; c>-1; c--) {
-      a = (buffer[r][firstMatrixFirstCol+7-c]) << (7-c);
+      a = (buffer[r][firstMatrixFirstCol+7-c-1]) << (7-c);
       val = val + a;
     }
-    digitalWrite(SS, LOW);
     SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+    digitalWrite(SS, LOW);
     
     // No op to second matrix
     SPI.transfer(NOOP_ADDRESS);
@@ -250,8 +262,8 @@ void scanFirstMatrix() {
     SPI.transfer(*COLS[r]);
     SPI.transfer(val);
     
-    SPI.endTransaction();
     digitalWrite(SS, HIGH);
+    SPI.endTransaction();
   }
 }
 
@@ -262,11 +274,11 @@ void scanSecondMatrix() {
     val = 0;
     // Convert int array of 1's and 0's into decimal value
     for (int c=7; c>-1; c--) {
-      a = (buffer[r][secondMatrixFirstCol+7-c]) << (7-c);
+      a = (buffer[r][secondMatrixFirstCol+7-c-1]) << (7-c);
       val = val + a;
     }
-    digitalWrite(SS, LOW);
     SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+    digitalWrite(SS, LOW);
     
     // Copy buffer value to second matrix
     SPI.transfer(*COLS[r]);
@@ -276,8 +288,8 @@ void scanSecondMatrix() {
     SPI.transfer(NOOP_ADDRESS);
     SPI.transfer(0x00);
     
-    SPI.endTransaction();
     digitalWrite(SS, HIGH);
+    SPI.endTransaction();
   }
 }
 
@@ -287,27 +299,28 @@ void scanMatrices() {
   for (int r=0; r<bufferRows; r++) {
     secondVal = 0;
     firstVal = 0;
+    a = 0;
+    b = 0;
     // Convert int array of 1's and 0's into decimal value
     for (int c=7; c>-1; c--) {
-      a = (buffer[r][secondMatrixFirstCol+7-c]) << (7-c);
-      b = (buffer[r][firstMatrixFirstCol+7-c]) << (7-c);
+      a = (buffer[r][secondMatrixFirstCol+7-c-1]) << (7-c);
+      b = (buffer[r][firstMatrixFirstCol+7-c-1]) << (7-c);
       secondVal = secondVal + a;
       firstVal = firstVal + b;
     }
     
-    digitalWrite(SS, LOW);
     SPI.beginTransaction(SPISettings(MAX_CLOCK, MSBFIRST, SPI_MODE0));
+    digitalWrite(SS, LOW);
     
     // Copy buffer value to second matrix
     SPI.transfer(*COLS[r]);
     SPI.transfer(secondVal);
-    
     // Copy buffer value to first matrix
     SPI.transfer(*COLS[r]);
     SPI.transfer(firstVal);
     
-    SPI.endTransaction();
     digitalWrite(SS, HIGH);
+    SPI.endTransaction();
   }
 }
 
