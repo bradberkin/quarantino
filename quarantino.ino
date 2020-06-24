@@ -66,9 +66,9 @@ unsigned long elapsed = 0;
 unsigned long period = 60000;
 
 // Initial count. Set to future date and throw start switch when ready to begin counting.
-unsigned long days = 75;
-unsigned long hours = 1;
-unsigned long minutes = 35;
+unsigned long days = 89;
+unsigned long hours = 8;
+unsigned long minutes = 5;
 unsigned long seconds = 0;
 
 const int HUNDREDS = 2;
